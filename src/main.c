@@ -3,7 +3,7 @@
 void app_main(void)
 {
 	SSD1306_t dev;
-	int center = 3, top = 0, bottom = 7;
+	int center = 3;
 	char *lineChar = malloc(sizeof(char)*10);
 
 #if CONFIG_I2C_INTERFACE
@@ -43,7 +43,7 @@ void app_main(void)
 	restart:
 	ssd1306_clear_screen(&dev, false);
 	ssd1306_contrast(&dev, 0xff);
-	ssd1306_display_text(&dev, center, " STARTING GAME...", 17, false);
+	ssd1306_display_text(&dev, center, "  STARTING GAME", 15, false);
 	int joystick_middle_x = 0, joystick_middle_y = 0;
 	for(int i=0; i<10; i++){
         adc2_get_raw( ADC2_CHANNEL_7, ADC_WIDTH_12Bit, &val_x);

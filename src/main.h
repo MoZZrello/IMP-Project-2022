@@ -10,7 +10,6 @@
 #include "driver/adc.h"
 
 #include "../components/ssd1306/ssd1306.h"
-#include "../components/ssd1306/font8x8_basic.h"
 
 #define tag "SSD1306"
 
