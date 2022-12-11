@@ -43,7 +43,7 @@ void app_main(void)
 	restart:
 	ssd1306_clear_screen(&dev, false);
 	ssd1306_contrast(&dev, 0xff);
-	ssd1306_display_text(&dev, center, "    WELCOME", 11, false);
+	ssd1306_display_text(&dev, center, " STARTING GAME...", 17, false);
 	int joystick_middle_x = 0, joystick_middle_y = 0;
 	for(int i=0; i<10; i++){
         adc2_get_raw( ADC2_CHANNEL_7, ADC_WIDTH_12Bit, &val_x);
@@ -54,7 +54,6 @@ void app_main(void)
 	}
 	joystick_middle_x = joystick_middle_x/10;
 	joystick_middle_y = joystick_middle_y/10;
-	printf("Middle: %d|%d\n",joystick_middle_x, joystick_middle_y);
 
 	//print
 	ssd1306_clear_screen(&dev, false);
@@ -110,12 +109,9 @@ void app_main(void)
         ssd1306_clear_line(&dev, 0, false);
         adc2_get_raw( ADC2_CHANNEL_7, ADC_WIDTH_12Bit, &val_x);
         adc2_get_raw( ADC2_CHANNEL_6, ADC_WIDTH_12Bit, &val_y);
-		//printf("Vals: %d|%d\n", val_x, val_y);
-		//printf("Pos: %d|%d\n", xpos, ypos);
-
 		adc2_get_raw( ADC2_CHANNEL_5, ADC_WIDTH_9Bit, &val_button);
+
 		if(val_button == 0){
-			printf("RESTARTED: %d\n", val_button);
 			goto restart;
 		}
 
@@ -265,7 +261,6 @@ void app_main(void)
 			break;
 		}
 	}
-
 	
 	ssd1306_clear_screen(&dev, false);
 	ssd1306_contrast(&dev, 0xff);
