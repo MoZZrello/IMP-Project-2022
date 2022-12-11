@@ -74,6 +74,38 @@ void app_main(void)
 	fires_t *all_shots = malloc(sizeof(fires_t)*13);
 	unsigned int number_of_shots = 1;
 
+	meteor_t meteor_1;
+	meteor_t meteor_2;
+	meteor_t meteor_3;
+	meteor_t meteor_4;
+	meteor_t meteor_5;
+
+	bool meteor_1_active = true;
+	bool meteor_2_active = true;
+	bool meteor_3_active = true;
+	bool meteor_4_active = true;
+	bool meteor_5_active = true;
+
+	meteor_1.xpos = 103;
+	meteor_1.ypos = 15;
+	ssd1306_bitmaps(&dev, meteor_1.xpos, meteor_1.ypos, meteor, 8, 3, false);
+
+	meteor_2.xpos = 111;
+	meteor_2.ypos = 25;
+	ssd1306_bitmaps(&dev, meteor_2.xpos, meteor_2.ypos, meteor, 8, 3, false);
+
+	meteor_3.xpos = 103;
+	meteor_3.ypos = 35;
+	ssd1306_bitmaps(&dev, meteor_3.xpos, meteor_3.ypos, meteor, 8, 3, false);
+
+	meteor_4.xpos = 111;
+	meteor_4.ypos = 45;
+	ssd1306_bitmaps(&dev, meteor_4.xpos, meteor_4.ypos, meteor, 8, 3, false);
+
+	meteor_5.xpos = 103;
+	meteor_5.ypos = 55;
+	ssd1306_bitmaps(&dev, meteor_5.xpos, meteor_5.ypos, meteor, 8, 3, false);
+
 	while(1) {
         ssd1306_clear_line(&dev, 0, false);
         adc2_get_raw( ADC2_CHANNEL_7, ADC_WIDTH_12Bit, &val_x);
@@ -200,6 +232,7 @@ void app_main(void)
 		fires_t new_shot;
 		new_shot.xpos = xpos + bitmapWidth + 2;
 		new_shot.ypos = ypos + (bitmapHeight/2);
+		ssd1306_bitmaps(&dev, all_shots[number_of_shots-1].xpos, all_shots[number_of_shots-1].ypos, clear_fire, 8, 1, false);
 		all_shots[number_of_shots-1] = new_shot;
 		number_of_shots++;
 		for(int i=0; i<10; i++){
@@ -208,9 +241,39 @@ void app_main(void)
 				all_shots[i].xpos += 8;
 				ssd1306_bitmaps(&dev, all_shots[i].xpos, all_shots[i].ypos, fire, 8, 1, false);
 			}
+			if(all_shots[i].xpos >= 95 && all_shots[i].xpos < 127){
+
+				if(meteor_1_active && all_shots[i].ypos > 12 && all_shots[i].ypos < 18){
+					meteor_1_active = false;
+					ssd1306_bitmaps(&dev, meteor_1.xpos, meteor_1.ypos, clear_meteor, 8, 3, false);
+				} else if(meteor_2_active && all_shots[i].ypos > 22 && all_shots[i].ypos < 28){
+					meteor_2_active = false;
+					ssd1306_bitmaps(&dev, meteor_2.xpos, meteor_2.ypos, clear_meteor, 8, 3, false);
+				} else if(meteor_3_active && all_shots[i].ypos > 32 && all_shots[i].ypos < 38){
+					meteor_3_active = false;
+					ssd1306_bitmaps(&dev, meteor_3.xpos, meteor_3.ypos, clear_meteor, 8, 3, false);
+				} else if(meteor_4_active && all_shots[i].ypos > 42 && all_shots[i].ypos < 48){
+					meteor_4_active = false;
+					ssd1306_bitmaps(&dev, meteor_4.xpos, meteor_4.ypos, clear_meteor, 8, 3, false);
+				} else if(meteor_5_active && all_shots[i].ypos > 52 && all_shots[i].ypos < 58){
+					meteor_5_active = false;
+					ssd1306_bitmaps(&dev, meteor_5.xpos, meteor_5.ypos, clear_meteor, 8, 3, false);
+				}
+			}
+		}
+		if(!meteor_1_active && !meteor_2_active && !meteor_3_active && !meteor_4_active && !meteor_5_active){
+			break;
 		}
 	}
-	vTaskDelay(3000 / portTICK_PERIOD_MS);
+
+	
+	ssd1306_clear_screen(&dev, false);
+	ssd1306_contrast(&dev, 0xff);
+	ssd1306_display_text(&dev, center, "    YOU WON!", 12, false);
+
+	vTaskDelay(5000 / portTICK_PERIOD_MS);
+	esp_restart();
+
 	free(all_shots);
     free(lineChar);
 }
