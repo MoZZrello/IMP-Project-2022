@@ -40,7 +40,6 @@ void app_main(void)
 
 	
 	//welcome message
-	restart:
 	ssd1306_clear_screen(&dev, false);
 	ssd1306_contrast(&dev, 0xff);
 	ssd1306_display_text(&dev, center, "  STARTING GAME", 15, false);
@@ -109,11 +108,6 @@ void app_main(void)
         ssd1306_clear_line(&dev, 0, false);
         adc2_get_raw( ADC2_CHANNEL_7, ADC_WIDTH_12Bit, &val_x);
         adc2_get_raw( ADC2_CHANNEL_6, ADC_WIDTH_12Bit, &val_y);
-		adc2_get_raw( ADC2_CHANNEL_5, ADC_WIDTH_9Bit, &val_button);
-
-		if(val_button == 0){
-			goto restart;
-		}
 
 		if(val_x < min_val && val_y < min_val){
 			for(int i=0; i<4; i++){
