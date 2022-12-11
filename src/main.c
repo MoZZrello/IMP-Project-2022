@@ -1,39 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "esp_log.h"
-#include "driver/adc.h"
-
-#include "../components/ssd1306/ssd1306.h"
-#include "../components/ssd1306/font8x8_basic.h"
-
-#define tag "SSD1306"
-
-uint8_t spaceship[] = {
-		0b00000000, 0b00000000, 0b00000000,
-		0b01100000, 0b00000000, 0b00000000,
-		0b01111000, 0b11000000, 0b00000000,
-		0b01111111, 0b11111000, 0b00100000,
-		0b01111111, 0b11111111, 0b11110000,
-		0b01111111, 0b11111111, 0b11110000,
-		0b01111111, 0b11111000, 0b00100000,
-		0b01111000, 0b11000000, 0b00000000,
-		0b01100000, 0b00000000, 0b00000000,
-		0b00000000, 0b00000000, 0b00000000,
-};
-
-uint8_t clear_spaceship[] = {
-		0b00000000, 0b00000000, 0b00000000,
-		0b00000000, 0b00000000, 0b00000000,
-		0b00000000, 0b00000000, 0b00000000,
-		0b00000000, 0b00000000, 0b00000000,
-		0b00000000, 0b00000000, 0b00000000,
-		0b00000000, 0b00000000, 0b00000000,
-		0b00000000, 0b00000000, 0b00000000,
-		0b00000000, 0b00000000, 0b00000000
-};
+#include "main.h"
 
 void app_main(void)
 {
@@ -94,17 +59,21 @@ void app_main(void)
 	//print
 	ssd1306_clear_screen(&dev, false);
 	ssd1306_contrast(&dev, 0xff);
-	int bitmapWidth = 3*8;
-	int bitmapHeight = 10;
-	int xpos = 10; 
-	int ypos = 64/2;
+	unsigned int bitmapWidth = 3*8;
+	unsigned int bitmapHeight = 10;
+	unsigned int xpos = 0; 
+	unsigned int ypos = 64/2;
 	ssd1306_bitmaps(&dev, xpos, ypos, spaceship, bitmapWidth, bitmapHeight, false);
 
-	int x_deviation = joystick_middle_x*0.1;
-	int y_deviation = joystick_middle_y*0.1;
-	int max_val = 4000;
-	int min_val = 100;
+	unsigned int x_deviation = joystick_middle_x*0.1;
+	unsigned int y_deviation = joystick_middle_y*0.1;
+	unsigned int max_val = 4000;
+	unsigned int min_val = 100;
 	//controling
+
+	fires_t *all_shots = malloc(sizeof(fires_t)*13);
+	unsigned int number_of_shots = 1;
+
 	while(1) {
         ssd1306_clear_line(&dev, 0, false);
         adc2_get_raw( ADC2_CHANNEL_7, ADC_WIDTH_12Bit, &val_x);
@@ -120,7 +89,7 @@ void app_main(void)
 
 		if(val_x < min_val && val_y < min_val){
 			for(int i=0; i<4; i++){
-				if(xpos > 10){
+				if(xpos > 0){
 					xpos -= 1;
 				}
 				if(ypos > 10){
@@ -130,7 +99,7 @@ void app_main(void)
 			}
 		} else if(val_x > max_val && val_y > max_val){
 			for(int i=0; i<4; i++){
-				if(xpos < 117){
+				if(xpos < 103){
 					xpos += 1;
 				}
 				if(ypos < 54){
@@ -140,7 +109,7 @@ void app_main(void)
 			}
 		} else if(val_x > max_val && val_y < min_val){
 			for(int i=0; i<4; i++){
-				if(xpos < 117){
+				if(xpos < 103){
 					xpos += 1;
 				}
 				if(ypos > 10){
@@ -150,7 +119,7 @@ void app_main(void)
 			}
 		} else if(val_x < min_val && val_y > max_val){
 			for(int i=0; i<4; i++){
-				if(xpos > 10){
+				if(xpos > 0){
 					xpos -= 1;
 				}
 				if(ypos < 54){
@@ -162,14 +131,14 @@ void app_main(void)
         
 			if(val_x > max_val){
 				for(int i=0; i<4; i++){
-					if(xpos < 117){
+					if(xpos < 103){
 						xpos += 1;
 						ssd1306_bitmaps(&dev, xpos, ypos, spaceship, bitmapWidth, bitmapHeight, false);
 					}
 				}
 			} else if(val_x > (joystick_middle_x + x_deviation)){
 				for(int i=0; i<2; i++){
-					if(xpos < 117){
+					if(xpos < 103){
 						xpos += 1;
 						ssd1306_bitmaps(&dev, xpos, ypos, spaceship, bitmapWidth, bitmapHeight, false);
 					}
@@ -178,14 +147,14 @@ void app_main(void)
 		
 			if(val_x < min_val){
 				for(int i=0; i<4; i++){
-					if(xpos > 10){
+					if(xpos > 0){
 						xpos -= 1;
 						ssd1306_bitmaps(&dev, xpos, ypos, spaceship, bitmapWidth, bitmapHeight, false);
 					}
 				}
 			} else if(val_x < (joystick_middle_x - x_deviation)){
 				for(int i=0; i<2; i++){
-					if(xpos > 10){
+					if(xpos > 0){
 						xpos -= 1;
 						ssd1306_bitmaps(&dev, xpos, ypos, spaceship, bitmapWidth, bitmapHeight, false);
 					}
@@ -216,7 +185,7 @@ void app_main(void)
 					}
 				}
 			} else if(val_y < (joystick_middle_y-y_deviation)){
-				for(int i=0; i<42; i++){
+				for(int i=0; i<2; i++){
 					if(ypos > 10){
 						ypos -= 1;
 						ssd1306_bitmaps(&dev, xpos, ypos, spaceship, bitmapWidth, bitmapHeight, false);
@@ -224,9 +193,24 @@ void app_main(void)
 				}
 			}
 		}
-
-		vTaskDelay(200 / portTICK_PERIOD_MS);
+		
+		if(number_of_shots == 10){
+			number_of_shots = 1;
+		}
+		fires_t new_shot;
+		new_shot.xpos = xpos + bitmapWidth + 2;
+		new_shot.ypos = ypos + (bitmapHeight/2);
+		all_shots[number_of_shots-1] = new_shot;
+		number_of_shots++;
+		for(int i=0; i<10; i++){
+			ssd1306_bitmaps(&dev, all_shots[i].xpos, all_shots[i].ypos, clear_fire, 8, 1, false);
+			if(all_shots[i].xpos < 111){
+				all_shots[i].xpos += 8;
+				ssd1306_bitmaps(&dev, all_shots[i].xpos, all_shots[i].ypos, fire, 8, 1, false);
+			}
+		}
 	}
 	vTaskDelay(3000 / portTICK_PERIOD_MS);
+	free(all_shots);
     free(lineChar);
 }
