@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "ssd1306.h": "c",
+        "font8x8_basic.h": "c"
+    }
+}
