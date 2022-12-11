@@ -12,14 +12,27 @@
 #define tag "SSD1306"
 
 uint8_t spaceship[] = {
-		0b11000000, 0b00000000, 0b00000000,
-		0b11110000, 0b11000000, 0b00000000,
-		0b11111111, 0b11110000, 0b00110000,
-		0b11111111, 0b11111111, 0b11110000,
-		0b11111111, 0b11111111, 0b11110000,
-		0b11111111, 0b11110000, 0b00110000,
-		0b11110000, 0b11000000, 0b00000000,
-		0b11000000, 0b00000000, 0b00000000
+		0b00000000, 0b00000000, 0b00000000,
+		0b01100000, 0b00000000, 0b00000000,
+		0b01111000, 0b11000000, 0b00000000,
+		0b01111111, 0b11111000, 0b00100000,
+		0b01111111, 0b11111111, 0b11110000,
+		0b01111111, 0b11111111, 0b11110000,
+		0b01111111, 0b11111000, 0b00100000,
+		0b01111000, 0b11000000, 0b00000000,
+		0b01100000, 0b00000000, 0b00000000,
+		0b00000000, 0b00000000, 0b00000000,
+};
+
+uint8_t clear_spaceship[] = {
+		0b00000000, 0b00000000, 0b00000000,
+		0b00000000, 0b00000000, 0b00000000,
+		0b00000000, 0b00000000, 0b00000000,
+		0b00000000, 0b00000000, 0b00000000,
+		0b00000000, 0b00000000, 0b00000000,
+		0b00000000, 0b00000000, 0b00000000,
+		0b00000000, 0b00000000, 0b00000000,
+		0b00000000, 0b00000000, 0b00000000
 };
 
 void app_main(void)
@@ -60,11 +73,13 @@ void app_main(void)
 		vTaskDelay(100 / portTICK_PERIOD_MS);
 	}
 
-	int joystick_middle_x = 0, joystick_middle_y = 0;
+	
 	//welcome message
+	restart:
 	ssd1306_clear_screen(&dev, false);
 	ssd1306_contrast(&dev, 0xff);
 	ssd1306_display_text(&dev, center, "    WELCOME", 11, false);
+	int joystick_middle_x = 0, joystick_middle_y = 0;
 	for(int i=0; i<10; i++){
         adc2_get_raw( ADC2_CHANNEL_7, ADC_WIDTH_12Bit, &val_x);
         adc2_get_raw( ADC2_CHANNEL_6, ADC_WIDTH_12Bit, &val_y);
@@ -76,48 +91,17 @@ void app_main(void)
 	joystick_middle_y = joystick_middle_y/10;
 	printf("Middle: %d|%d\n",joystick_middle_x, joystick_middle_y);
 
-	/*ssd1306_clear_screen(&dev, false);
-	ssd1306_contrast(&dev, 0xff);
-	int bitmapWidth = 4*8;
-	int width = ssd1306_get_width(&dev);
-	int xpos = width / 2; // center of width
-	xpos = xpos - bitmapWidth/2; 
-	int ypos = 16;
-	ESP_LOGD(tag, "width=%d xpos=%d", width, xpos);
-	ssd1306_bitmaps(&dev, xpos, ypos, spaceship, 24, 8, false);
-	vTaskDelay(3000 / portTICK_PERIOD_MS);
-	while(1){
-		for(int i=0;i<8;i++) {
-			ssd1306_wrap_arround(&dev, SCROLL_RIGHT, 2, 3, 0);
-		}
-
-		for(int i=0;i<8; i++) {
-			ssd1306_wrap_arround(&dev, SCROLL_UP, 52, 77, 0);
-		}
-
-		for(int i=0;i<8;i++) {
-			ssd1306_wrap_arround(&dev, SCROLL_LEFT, 1, 2, 0);
-		}
-
-		for(int i=0;i<8;i++) {
-			ssd1306_wrap_arround(&dev, SCROLL_DOWN, 52-8, 77-8, 0);
-		}
-	}	
-	vTaskDelay(3000 / portTICK_PERIOD_MS);*/
-
 	//print
-	restart:
 	ssd1306_clear_screen(&dev, false);
 	ssd1306_contrast(&dev, 0xff);
 	int bitmapWidth = 3*8;
-	int width = ssd1306_get_width(&dev);
+	int bitmapHeight = 10;
 	int xpos = 10; 
-	int ypos = (64/2)-(bitmapWidth/2);
-	int page = 2;
-	ssd1306_bitmaps(&dev, xpos, ypos, spaceship, 24, 8, false);
+	int ypos = 64/2;
+	ssd1306_bitmaps(&dev, xpos, ypos, spaceship, bitmapWidth, bitmapHeight, false);
 
-	int x_deviation = joystick_middle_x*0.05;
-	int y_deviation = joystick_middle_y*0.05;
+	int x_deviation = joystick_middle_x*0.1;
+	int y_deviation = joystick_middle_y*0.1;
 	int max_val = 4000;
 	int min_val = 100;
 	//controling
@@ -125,55 +109,120 @@ void app_main(void)
         ssd1306_clear_line(&dev, 0, false);
         adc2_get_raw( ADC2_CHANNEL_7, ADC_WIDTH_12Bit, &val_x);
         adc2_get_raw( ADC2_CHANNEL_6, ADC_WIDTH_12Bit, &val_y);
-		printf("Vals: %d|%d\n", val_x, val_y);
+		//printf("Vals: %d|%d\n", val_x, val_y);
+		//printf("Pos: %d|%d\n", xpos, ypos);
 
-		adc2_get_raw( ADC2_CHANNEL_5, ADC_WIDTH_12Bit, &val_button);
+		adc2_get_raw( ADC2_CHANNEL_5, ADC_WIDTH_9Bit, &val_button);
 		if(val_button == 0){
+			printf("RESTARTED: %d\n", val_button);
 			goto restart;
 		}
-        
-		if(val_x > max_val){
-			for(int i=0;i<8;i++) {
-				ssd1306_wrap_arround(&dev, SCROLL_RIGHT, page, page+1, 0);
-			}
-			xpos += 8;
-		} else if(val_x > (joystick_middle_x + x_deviation)){
-			for(int i=0;i<2;i++) {
-				ssd1306_wrap_arround(&dev, SCROLL_RIGHT, page, page+1, 0);
-			}
-			xpos += 2;
-		}
-		
-		if(val_x < min_val){
-			for(int i=0;i<8;i++) {
-				ssd1306_wrap_arround(&dev, SCROLL_LEFT, page, page+1, 0);
-			}
-			xpos -= 8;
-		} else if(val_x < (joystick_middle_x - x_deviation)){
-			for(int i=0;i<2;i++) {
-				ssd1306_wrap_arround(&dev, SCROLL_LEFT, page, page+1, 0);
-			}
-			xpos -= 2;
-		}
 
-		if(val_y > (joystick_middle_y+y_deviation)){
-			for(int i=0;i<8; i++) {
-				ssd1306_wrap_arround(&dev, SCROLL_UP, xpos, xpos+bitmapWidth, 0);
+		if(val_x < min_val && val_y < min_val){
+			for(int i=0; i<4; i++){
+				if(xpos > 10){
+					xpos -= 1;
+				}
+				if(ypos > 10){
+					ypos -= 1;
+				}
+				ssd1306_bitmaps(&dev, xpos, ypos, spaceship, bitmapWidth, bitmapHeight, false);
 			}
-			page -= 1;
-		}
-		if(page == -1){
-			page = 6;
-		}
+		} else if(val_x > max_val && val_y > max_val){
+			for(int i=0; i<4; i++){
+				if(xpos < 117){
+					xpos += 1;
+				}
+				if(ypos < 54){
+					ypos += 1;
+				}
+				ssd1306_bitmaps(&dev, xpos, ypos, spaceship, bitmapWidth, bitmapHeight, false);
+			}
+		} else if(val_x > max_val && val_y < min_val){
+			for(int i=0; i<4; i++){
+				if(xpos < 117){
+					xpos += 1;
+				}
+				if(ypos > 10){
+					ypos -= 1;
+				}
+				ssd1306_bitmaps(&dev, xpos, ypos, spaceship, bitmapWidth, bitmapHeight, false);
+			}
+		} else if(val_x < min_val && val_y > max_val){
+			for(int i=0; i<4; i++){
+				if(xpos > 10){
+					xpos -= 1;
+				}
+				if(ypos < 54){
+					ypos += 1;
+				}
+				ssd1306_bitmaps(&dev, xpos, ypos, spaceship, bitmapWidth, bitmapHeight, false);
+			}
+		} else {
+        
+			if(val_x > max_val){
+				for(int i=0; i<4; i++){
+					if(xpos < 117){
+						xpos += 1;
+						ssd1306_bitmaps(&dev, xpos, ypos, spaceship, bitmapWidth, bitmapHeight, false);
+					}
+				}
+			} else if(val_x > (joystick_middle_x + x_deviation)){
+				for(int i=0; i<2; i++){
+					if(xpos < 117){
+						xpos += 1;
+						ssd1306_bitmaps(&dev, xpos, ypos, spaceship, bitmapWidth, bitmapHeight, false);
+					}
+				}
+			}
 		
-		if(val_y < (joystick_middle_y-y_deviation)){
-			for(int i=0;i<8;i++) {
-				ssd1306_wrap_arround(&dev, SCROLL_DOWN, xpos, xpos+bitmapWidth, 0);
+			if(val_x < min_val){
+				for(int i=0; i<4; i++){
+					if(xpos > 10){
+						xpos -= 1;
+						ssd1306_bitmaps(&dev, xpos, ypos, spaceship, bitmapWidth, bitmapHeight, false);
+					}
+				}
+			} else if(val_x < (joystick_middle_x - x_deviation)){
+				for(int i=0; i<2; i++){
+					if(xpos > 10){
+						xpos -= 1;
+						ssd1306_bitmaps(&dev, xpos, ypos, spaceship, bitmapWidth, bitmapHeight, false);
+					}
+				}
 			}
-			page += 1;
-		}
-		if(page == 8){
-			page = 0;
+
+			if(val_y > max_val){
+				for(int i=0; i<4; i++){
+					if(ypos < 54){
+						ypos += 1;
+						ssd1306_bitmaps(&dev, xpos, ypos, spaceship, bitmapWidth, bitmapHeight, false);
+					}
+				}
+			} else if(val_y > (joystick_middle_y+y_deviation)){
+				for(int i=0; i<2; i++){
+					if(ypos < 54){
+						ypos += 1;
+						ssd1306_bitmaps(&dev, xpos, ypos, spaceship, bitmapWidth, bitmapHeight, false);
+					}
+				}
+			}
+		
+			if(val_y < min_val){
+				for(int i=0; i<4; i++){
+					if(ypos > 10){
+						ypos -= 1;
+						ssd1306_bitmaps(&dev, xpos, ypos, spaceship, bitmapWidth, bitmapHeight, false);
+					}
+				}
+			} else if(val_y < (joystick_middle_y-y_deviation)){
+				for(int i=0; i<42; i++){
+					if(ypos > 10){
+						ypos -= 1;
+						ssd1306_bitmaps(&dev, xpos, ypos, spaceship, bitmapWidth, bitmapHeight, false);
+					}
+				}
+			}
 		}
 
 		vTaskDelay(200 / portTICK_PERIOD_MS);
