@@ -54,24 +54,19 @@ void app_main(void)
 	joystick_middle_x = joystick_middle_x/10;
 	joystick_middle_y = joystick_middle_y/10;
 
-	//print
+	int level = 0;
+
 	ssd1306_clear_screen(&dev, false);
 	ssd1306_contrast(&dev, 0xff);
 	unsigned int bitmapWidth = 3*8;
 	unsigned int bitmapHeight = 10;
 	unsigned int xpos = 0; 
 	unsigned int ypos = 64/2;
-	ssd1306_bitmaps(&dev, xpos, ypos, spaceship, bitmapWidth, bitmapHeight, false);
 
-	unsigned int x_deviation = joystick_middle_x*0.1;
-	unsigned int y_deviation = joystick_middle_y*0.1;
-	unsigned int max_val = 4000;
-	unsigned int min_val = 100;
-	//controling
+	nextLevel:
+	level++;
 
-	fires_t *all_shots = malloc(sizeof(fires_t)*13);
-	unsigned int number_of_shots = 1;
-
+	// create meteors
 	meteor_t meteor_1;
 	meteor_t meteor_2;
 	meteor_t meteor_3;
@@ -84,25 +79,100 @@ void app_main(void)
 	bool meteor_4_active = true;
 	bool meteor_5_active = true;
 
-	meteor_1.xpos = 103;
-	meteor_1.ypos = 15;
-	ssd1306_bitmaps(&dev, meteor_1.xpos, meteor_1.ypos, meteor, 8, 3, false);
+	// select meteors based on level
+	switch(level){
+		case 1:
+			ssd1306_clear_screen(&dev, false);
+			ssd1306_contrast(&dev, 0xff);
+			ssd1306_display_text(&dev, center, "     LEVEL 1", 12, false);
+			vTaskDelay(3000 / portTICK_PERIOD_MS);
+			ssd1306_clear_screen(&dev, false);
+			ssd1306_contrast(&dev, 0xff);
 
-	meteor_2.xpos = 111;
-	meteor_2.ypos = 25;
-	ssd1306_bitmaps(&dev, meteor_2.xpos, meteor_2.ypos, meteor, 8, 3, false);
+			meteor_1.xpos = 103;
+			meteor_1.ypos = 15;
+			ssd1306_bitmaps(&dev, meteor_1.xpos, meteor_1.ypos, meteor, 8, 3, false);
 
-	meteor_3.xpos = 103;
-	meteor_3.ypos = 35;
-	ssd1306_bitmaps(&dev, meteor_3.xpos, meteor_3.ypos, meteor, 8, 3, false);
+			meteor_2.xpos = 103;
+			meteor_2.ypos = 35;
+			ssd1306_bitmaps(&dev, meteor_2.xpos, meteor_2.ypos, meteor, 8, 3, false);
 
-	meteor_4.xpos = 111;
-	meteor_4.ypos = 45;
-	ssd1306_bitmaps(&dev, meteor_4.xpos, meteor_4.ypos, meteor, 8, 3, false);
+			meteor_3.xpos = 103;
+			meteor_3.ypos = 55;
+			ssd1306_bitmaps(&dev, meteor_3.xpos, meteor_3.ypos, meteor, 8, 3, false);
 
-	meteor_5.xpos = 103;
-	meteor_5.ypos = 55;
-	ssd1306_bitmaps(&dev, meteor_5.xpos, meteor_5.ypos, meteor, 8, 3, false);
+			meteor_4_active = false;
+			meteor_5_active = false;
+			break;
+		case 2:
+			ssd1306_clear_screen(&dev, false);
+			ssd1306_contrast(&dev, 0xff);
+			ssd1306_display_text(&dev, center, "     LEVEL 2", 12, false);
+			vTaskDelay(3000 / portTICK_PERIOD_MS);
+			ssd1306_clear_screen(&dev, false);
+			ssd1306_contrast(&dev, 0xff);
+
+			meteor_1.xpos = 103;
+			meteor_1.ypos = 10;
+			ssd1306_bitmaps(&dev, meteor_1.xpos, meteor_1.ypos, meteor, 8, 3, false);
+
+			meteor_2.xpos = 103;
+			meteor_2.ypos = 25;
+			ssd1306_bitmaps(&dev, meteor_2.xpos, meteor_2.ypos, meteor, 8, 3, false);
+
+			meteor_3.xpos = 103;
+			meteor_3.ypos = 40;
+			ssd1306_bitmaps(&dev, meteor_3.xpos, meteor_3.ypos, meteor, 8, 3, false);
+
+			meteor_4.xpos = 103;
+			meteor_4.ypos = 55;
+			ssd1306_bitmaps(&dev, meteor_4.xpos, meteor_4.ypos, meteor, 8, 3, false);
+
+			meteor_5_active = false;
+			break;
+		case 3:
+			ssd1306_clear_screen(&dev, false);
+			ssd1306_contrast(&dev, 0xff);
+			ssd1306_display_text(&dev, center, "     LEVEL 3", 12, false);
+			vTaskDelay(3000 / portTICK_PERIOD_MS);
+			ssd1306_clear_screen(&dev, false);
+			ssd1306_contrast(&dev, 0xff);
+
+			meteor_1.xpos = 103;
+			meteor_1.ypos = 15;
+			ssd1306_bitmaps(&dev, meteor_1.xpos, meteor_1.ypos, meteor, 8, 3, false);
+
+			meteor_2.xpos = 111;
+			meteor_2.ypos = 25;
+			ssd1306_bitmaps(&dev, meteor_2.xpos, meteor_2.ypos, meteor, 8, 3, false);
+
+			meteor_3.xpos = 103;
+			meteor_3.ypos = 35;
+			ssd1306_bitmaps(&dev, meteor_3.xpos, meteor_3.ypos, meteor, 8, 3, false);
+
+			meteor_4.xpos = 111;
+			meteor_4.ypos = 45;
+			ssd1306_bitmaps(&dev, meteor_4.xpos, meteor_4.ypos, meteor, 8, 3, false);
+
+			meteor_5.xpos = 103;
+			meteor_5.ypos = 55;
+			ssd1306_bitmaps(&dev, meteor_5.xpos, meteor_5.ypos, meteor, 8, 3, false);
+			break;
+		default: 
+			goto end;
+	}
+	
+	//print spaceship
+	ssd1306_bitmaps(&dev, xpos, ypos, spaceship, bitmapWidth, bitmapHeight, false);
+
+	unsigned int x_deviation = joystick_middle_x*0.1;
+	unsigned int y_deviation = joystick_middle_y*0.1;
+	unsigned int max_val = 4000;
+	unsigned int min_val = 100;
+	//controling
+
+	fires_t *all_shots = malloc(sizeof(fires_t)*13);
+	unsigned int number_of_shots = 1;
 
 	while(1) {
         ssd1306_clear_line(&dev, 0, false);
@@ -233,19 +303,19 @@ void app_main(void)
 			}
 			if(all_shots[i].xpos >= 95 && all_shots[i].xpos < 127){
 
-				if(meteor_1_active && all_shots[i].ypos > 12 && all_shots[i].ypos < 18){
+				if(meteor_1_active && all_shots[i].ypos > (meteor_1.ypos-4) && all_shots[i].ypos < (meteor_1.ypos+4)){
 					meteor_1_active = false;
 					ssd1306_bitmaps(&dev, meteor_1.xpos, meteor_1.ypos, clear_meteor, 8, 3, false);
-				} else if(meteor_2_active && all_shots[i].ypos > 22 && all_shots[i].ypos < 28){
+				} else if(meteor_2_active && all_shots[i].ypos > (meteor_2.ypos-4) && all_shots[i].ypos < (meteor_2.ypos+4)){
 					meteor_2_active = false;
 					ssd1306_bitmaps(&dev, meteor_2.xpos, meteor_2.ypos, clear_meteor, 8, 3, false);
-				} else if(meteor_3_active && all_shots[i].ypos > 32 && all_shots[i].ypos < 38){
+				} else if(meteor_3_active && all_shots[i].ypos > (meteor_3.ypos-4) && all_shots[i].ypos < (meteor_3.ypos+4)){
 					meteor_3_active = false;
 					ssd1306_bitmaps(&dev, meteor_3.xpos, meteor_3.ypos, clear_meteor, 8, 3, false);
-				} else if(meteor_4_active && all_shots[i].ypos > 42 && all_shots[i].ypos < 48){
+				} else if(meteor_4_active && all_shots[i].ypos > (meteor_4.ypos-4) && all_shots[i].ypos < (meteor_4.ypos+4)){
 					meteor_4_active = false;
 					ssd1306_bitmaps(&dev, meteor_4.xpos, meteor_4.ypos, clear_meteor, 8, 3, false);
-				} else if(meteor_5_active && all_shots[i].ypos > 52 && all_shots[i].ypos < 58){
+				} else if(meteor_5_active && all_shots[i].ypos > (meteor_5.ypos-4) && all_shots[i].ypos < (meteor_5.ypos+4)){
 					meteor_5_active = false;
 					ssd1306_bitmaps(&dev, meteor_5.xpos, meteor_5.ypos, clear_meteor, 8, 3, false);
 				}
@@ -259,8 +329,14 @@ void app_main(void)
 	ssd1306_clear_screen(&dev, false);
 	ssd1306_contrast(&dev, 0xff);
 	ssd1306_display_text(&dev, center, "    YOU WON!", 12, false);
+	vTaskDelay(3000 / portTICK_PERIOD_MS);
+	goto nextLevel;
 
-	vTaskDelay(5000 / portTICK_PERIOD_MS);
+	end:
+	ssd1306_clear_screen(&dev, false);
+	ssd1306_contrast(&dev, 0xff);
+	ssd1306_display_text(&dev, center, "    THE END...", 14, false);
+	vTaskDelay(3000 / portTICK_PERIOD_MS);
 	esp_restart();
 
 	free(all_shots);
