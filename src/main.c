@@ -113,19 +113,19 @@ void app_main(void)
 			ssd1306_contrast(&dev, 0xff);
 
 			meteor_1.xpos = 103;
-			meteor_1.ypos = 10;
+			meteor_1.ypos = 15;
 			ssd1306_bitmaps(&dev, meteor_1.xpos, meteor_1.ypos, meteor, 8, 3, false);
 
 			meteor_2.xpos = 103;
-			meteor_2.ypos = 25;
+			meteor_2.ypos = 30;
 			ssd1306_bitmaps(&dev, meteor_2.xpos, meteor_2.ypos, meteor, 8, 3, false);
 
 			meteor_3.xpos = 103;
-			meteor_3.ypos = 40;
+			meteor_3.ypos = 45;
 			ssd1306_bitmaps(&dev, meteor_3.xpos, meteor_3.ypos, meteor, 8, 3, false);
 
 			meteor_4.xpos = 103;
-			meteor_4.ypos = 55;
+			meteor_4.ypos = 60;
 			ssd1306_bitmaps(&dev, meteor_4.xpos, meteor_4.ypos, meteor, 8, 3, false);
 
 			meteor_5_active = false;
